@@ -1,0 +1,540 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Gotta Catch 'em All!</title>
+        <style>
+            #left {
+                width: 50%;
+                float: left;
+                box-sizing: border-box;
+                background-color: forestgreen;
+                position: relative;
+            }
+            #right {
+                width: 50%;
+                float: left;
+                box-sizing: border-box;
+                padding-left: 20px;
+            }
+            #background {
+                width: 100%;
+            }
+            .grass {
+                position: absolute;    
+                width: 30%;            
+            }
+            #grass1 {
+                bottom: 0px;
+                left: 0px;
+            }
+            #grass3 {
+                bottom: 0px;
+                right: 0px;
+            }
+            #grass2 {
+                bottom: 0px;
+                left: 35%;
+            }
+            .grass:hover {
+                background-color: rgba(255,255,0,0.5);
+            }
+            #button_playagain {
+                display: none;
+            }
+            #p_bar {
+                background-color: yellow;
+                width: 0px;
+                height: 17px;
+                display: fixed;
+            }
+            #b_bar {
+                background-color: green;
+                width: 0px;
+                height: 17px;
+                display: fixed;
+            }
+            #c_bar {
+                background-color: red;
+                width: 0px;
+                height: 17px;
+                display: fixed;
+            }
+            #e_bar {
+                background-color: purple;
+                width: 0px;
+                height: 17px;
+                display: fixed;
+            }
+            #s_bar {
+                background-color: blue;
+                width: 0px;
+                height: 17px;
+                display: fixed;
+            }
+
+            #Pokedex{
+                display: flex;
+                width: 100%;
+            }
+            .col{
+                flex-grow: 1;
+                flex-basis: 0;
+                flex-shrink: 0;
+                display: flex;
+                flex-direction: column;
+            }
+            #gameover{
+                color:red;
+                text-align: center;
+                display: none;
+            }
+            #resultHistory{
+                display: none;
+            }
+
+
+        </style>
+    </head>
+    <body>
+        <div id="container">
+            <div id="left">
+                <img id="background" src="images/environment_forestbackground.png">
+                <img id="grass1" class="grass" src="images/grass.png">
+                <img id="grass2" class="grass" src="images/grass.png">
+                <img id="grass3" class="grass" src="images/grass.png">
+            </div>
+            <div id="right">
+                <h1>Gotta Catch 'em All</h1>
+                <p>Your goal in this game is to catch as many pokemon as possible before you run out of Pokeballs. Click on a grass patch to begin playing.</p>
+                <h2 id="status">Status</h2>
+                <p>Pokeballs Left: <span id="pokeballs_left">5</span></p>
+                <p>Pokemon caught: <span id="pokemon_caught">0</span></p>
+                <button id="button_playagain">Play Again</button>
+                <h2 id="gameover">Game Over!</h2>
+                <h3 id = "resultHistory">Result history</h3>
+                <p id = "history"></p>
+                <button id="button_startover">Start Over</button>
+                <br>
+                <br>
+                <div id="Pokedex">
+                    <div id="pokemon_name" class="col"> Pokemon
+                        <div>Pikachu</div>
+                        <div>Bulbasaur</div>
+                        <div>Charmander</div>
+                        <div>Eevee</div>
+                        <div>Squirtle</div>
+                    </div>
+                    <div id="count" class="col"> Count
+                        <div id="pc">0</div>
+                        <div id="bc">0</div>
+                        <div id="cc">0</div>
+                        <div id="ec">0</div>
+                        <div id="sc">0</div>
+                    </div>
+                    <div id="histogram" class="col"> Histogram
+                        <div id="p_bar"></div>
+                        <div id="b_bar"></div>
+                        <div id="c_bar"></div>
+                        <div id="e_bar"></div>
+                        <div id="s_bar"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            let grass1 = document.getElementById('grass1');
+            let grass2 = document.getElementById('grass2');
+            let grass3 = document.getElementById('grass3');
+            let pokeballs_left = document.getElementById('pokeballs_left');
+            let status = document.getElementById('status');
+            let pokemon_caught = document.getElementById('pokemon_caught');
+            let button_playagain = document.getElementById('button_playagain');
+            let history = document.getElementById('history');
+            let pc = document.getElementById('pc');
+            let bc = document.getElementById('bc');
+            let cc = document.getElementById('cc');
+            let ec = document.getElementById('ec');
+            let sc = document.getElementById('sc');
+            let p_bar = document.getElementById('p_bar');
+            let b_bar = document.getElementById('b_bar');
+            let c_bar = document.getElementById('c_bar');
+            let e_bar = document.getElementById('e_bar');
+            let s_bar = document.getElementById('s_bar');
+            let pci = 0;
+            let bci = 0;
+            let cci = 0;
+            let eci = 0;
+            let sci = 0;
+            let pwidth = 0;
+            let bwidth = 0;
+            let cwidth = 0;
+            let ewidth = 0;
+            let swidth = 0;
+            let gameover = document.getElementById('gameover');
+            let resultArray = [];
+            let resultHistory = document.getElementById('resultHistory');
+
+
+            let pokeballs = 5;
+            let caught = 0;
+
+            const pokemon = [
+                {name:'Pikachu', image:'images/pikachu.png'}, 
+                {name:'Bulbasaur', image:'images/bulbasaur.png'},
+                {name:'Charmander', image:'images/charmander.png'},
+                {name:'Eevee', image:'images/eevee.png'},
+                {name:'Squirtle', image:'images/squirtle.png'}
+            ]
+
+            button_playagain.onclick = function() {
+                grass1.src = 'images/grass.png';
+                grass2.src = 'images/grass.png';
+                grass3.src = 'images/grass.png';
+                grass1.style.display = 'block';
+                grass2.style.display = 'block';
+                grass3.style.display = 'block';
+
+                button_playagain.style.display = 'none';
+            }
+
+            button_startover.onclick = function() {
+                grass1.src = 'images/grass.png';
+                grass2.src = 'images/grass.png';
+                grass3.src = 'images/grass.png';
+                grass1.style.display = 'block';
+                grass2.style.display = 'block';
+                grass3.style.display = 'block';
+                pokeballs = 5;
+                caught = 0;
+                history.innerText = '';
+                pokeballs_left.innerText = pokeballs; 
+                pokemon_caught.innerText = caught;
+                status.innerText = 'Status';
+                pci = 0;
+                bci = 0;
+                cci = 0;
+                eci = 0;
+                sci = 0;
+                pwidth = 0;
+                bwidth = 0;
+                cwidth = 0;
+                ewidth = 0;
+                swidth = 0;
+                pc.innerText = pci;
+                bc.innerText = bci;
+                cc.innerText = cci;
+                ec.innerText = eci;
+                sc.innerText = sci;
+                p_bar.style.width = pwidth + "px";
+                b_bar.style.width = bwidth+"px";
+                c_bar.style.width = cwidth+"px";
+                s_bar.style.width = swidth+"px";
+                e_bar.style.width = ewidth+"px";
+                gameover.style.display = 'none';
+                resultArray = [];
+                resultHistory.style.display = 'none';
+            }
+
+            grass1.onclick = function() {
+                if (button_playagain.style.display == 'block' || pokeballs == 0){
+                    alert('Cheater!')
+                    return;
+                }
+
+                pokeballs -= 1;
+
+                pokeballs_left.innerText = pokeballs;
+
+                let chance = parseInt( Math.random() * 3 );
+                if (chance == 0) {
+
+                    grass1.style.display = 'none';
+
+                    status.innerText = 'Nothing here!';
+
+                    resultArray.push('Nothing Found');
+                }
+                else if (chance == 1) {
+                    grass1.src = 'images/pokeballs.png';
+                    pokeballs+=2;    
+
+                    pokeballs_left.innerText = pokeballs;  
+
+                    status.innerText = 'You found +2 pokeballs!';
+
+                    resultArray.push('Pokeballs Found');
+                }
+                else if (chance == 2) {
+                    let pokemon_num = pokemon[Math.floor(Math.random() * pokemon.length)];
+                    grass1.src = pokemon_num.image;
+                    if (pokemon_num.name == 'Pikachu'){
+                        status.innerText = 'You caught a pikachu!';
+                        pci += 1;
+                        pc.innerText = pci;
+                        pwidth = 50 * pci;
+                        p_bar.style.width = pwidth + 'px';
+                        resultArray.push(pokemon_num.name + " Found");
+                    }
+                    else if (pokemon_num.name == 'Bulbasaur'){
+                        status.innerText = 'You caught a bulbasaur!';
+                        bci += 1;
+                        bc.innerText = bci;
+                        bwidth = 50 * bci;
+                        b_bar.style.width = bwidth + 'px';
+                        resultArray.push(pokemon_num.name + " Found");
+                    }
+                    else if (pokemon_num.name == 'Charmander'){
+                        status.innerText = 'You caught a charmander!';
+                        cci += 1;
+                        cc.innerText = cci;
+                        cwidth = 50 * cci;
+                        c_bar.style.width = cwidth + 'px';
+                        resultArray.push(pokemon_num.name + " Found");
+                    }
+                    else if (pokemon_num.name == 'Eevee'){
+                        status.innerText = 'You caught a eevee!';
+                        eci += 1;
+                        ec.innerText = eci;
+                        ewidth = 50 * eci;
+                        e_bar.style.width = ewidth + 'px';
+                        resultArray.push(pokemon_num.name + " Found");
+                    }
+                    else if (pokemon_num.name == 'Squirtle'){
+                        status.innerText = 'You caught a squirtle!';
+                        sci += 1;
+                        sc.innerText = sci;
+                        swidth = 50 * sci;
+                        s_bar.style.width = swidth + 'px';
+                        resultArray.push(pokemon_num.name + " Found");
+
+                    }
+
+                    caught += 1;
+                    pokemon_caught.innerText = caught;
+                }
+
+
+                button_playagain.style.display = 'block';
+
+                let resultString = '';
+
+                for (let i = resultArray.length - 1; i >= 0; i--){
+                        resultString = resultString + '<br>' + `${resultArray[i]}`;
+                        console.log(history.innerText);
+                }
+
+                resultHistory.style.display = 'block';
+                history.innerHTML = resultString;                
+
+
+                if (pokeballs == 0){
+                    gameover.style.display = 'block';
+                    return;
+                }
+
+            }
+
+            grass2.onclick = function() {
+                if (button_playagain.style.display == 'block' || pokeballs == 0){
+                    alert('Cheater!')
+                    return;
+                }
+
+                pokeballs -= 1;
+
+                pokeballs_left.innerText = pokeballs;
+
+                let chance = parseInt( Math.random() * 3 );
+                if (chance == 0) {
+
+                    grass2.style.display = 'none';
+
+                    status.innerText = 'Nothing here!';
+                    resultArray.push('Nothing Found');
+                    //history.innerText += "\nNothing found" ;
+                }
+                else if (chance == 1) {
+                    grass2.src = 'images/pokeballs.png';
+                    pokeballs+=2;    
+
+                    pokeballs_left.innerText = pokeballs;  
+
+                    status.innerText = 'You found +2 pokeballs!';
+                    resultArray.push('Pokeballs Found');
+                    //history.innerText += "\nPokeballs found" ;
+                }
+                else if (chance == 2) {
+                    let pokemon_num = pokemon[Math.floor(Math.random() * pokemon.length)];
+                    grass2.src = pokemon_num.image;
+                    if (pokemon_num.name == 'Pikachu'){
+                        status.innerText = 'You caught a pikachu!';
+                        //history.innerText += "\nPikachu found" ;
+                        pci += 1;
+                        pc.innerText = pci;
+                        pwidth = 50 * pci;
+                        p_bar.style.width = pwidth + 'px';
+                        resultArray.push(pokemon_num.name + " Found");
+                    }
+                    else if (pokemon_num.name == 'Bulbasaur'){
+                        status.innerText = 'You caught a bulbasaur!';
+                        //history.innerText += "\nBulbasaur found" ;
+                        bci += 1;
+                        bc.innerText = bci;
+                        bwidth = 50 * bci;
+                        b_bar.style.width = bwidth + 'px';
+                        resultArray.push(pokemon_num.name + " Found");
+                    }
+                    else if (pokemon_num.name == 'Charmander'){
+                        status.innerText = 'You caught a charmander!';
+                        //history.innerText += "\nCharmander found" ;
+                        cci += 1;
+                        cc.innerText = cci;
+                        cwidth = 50 * cci;
+                        c_bar.style.width = cwidth + 'px';
+                        resultArray.push(pokemon_num.name + " Found");
+                    }
+                    else if (pokemon_num.name == 'Eevee'){
+                        status.innerText = 'You caught a eevee!';
+                        //history.innerText += "\nEevee found" ;
+                        eci += 1;
+                        ec.innerText = eci;
+                        ewidth = 50 * eci;
+                        e_bar.style.width = ewidth + 'px';
+                        resultArray.push(pokemon_num.name + " Found");
+                    }
+                    else if (pokemon_num.name == 'Squirtle'){
+                        status.innerText = 'You caught a squirtle!';
+                        //history.innerText += "\nSquirtle found" ;
+                        sci += 1;
+                        sc.innerText = sci;
+                        swidth = 50 * sci;
+                        s_bar.style.width = swidth + 'px';
+                        resultArray.push(pokemon_num.name + " Found");
+                    }
+
+                    caught += 1;
+                    pokemon_caught.innerText = caught;
+                }
+
+                let resultString = '';
+
+for (let i = resultArray.length - 1; i >= 0; i--){
+        resultString = resultString + '<br>' + `${resultArray[i]}`;
+        console.log(history.innerText);
+}
+
+resultHistory.style.display = 'block';
+history.innerHTML = resultString;                    
+
+                if (pokeballs == 0){
+                    gameover.style.display = 'block';
+                    return;
+                }
+
+                button_playagain.style.display = 'block';
+
+            }
+
+            grass3.onclick = function() {
+                if (button_playagain.style.display == 'block' || pokeballs == 0){
+                    alert('Cheater!')
+                    return;
+                }
+
+                pokeballs -= 1;
+
+                pokeballs_left.innerText = pokeballs;
+
+                let chance = parseInt( Math.random() * 3 );
+                if (chance == 0) {
+
+                    grass3.style.display = 'none';
+
+                    status.innerText = 'Nothing here!';
+                    resultArray.push('Nothing Found');
+                    //history.innerText += "\nNothing found" ;
+                }
+                else if (chance == 1) {
+                    grass3.src = 'images/pokeballs.png';
+                    pokeballs+=2;    
+
+                    pokeballs_left.innerText = pokeballs;  
+
+                    status.innerText = 'You found +2 pokeballs!';
+                    resultArray.push('Pokeballs Found');
+                    //history.innerText += "\nPokeballs found" ;
+                }
+                else if (chance == 2) {
+                    let pokemon_num = pokemon[Math.floor(Math.random() * pokemon.length)];
+                    grass3.src = pokemon_num.image;
+                    if (pokemon_num.name == 'Pikachu'){
+                        status.innerText = 'You caught a pikachu!';
+                        //history.innerText += "\nPikachu found" ;
+                        pci += 1;
+                        pc.innerText = pci;
+                        pwidth = 50 * pci;
+                        p_bar.style.width = pwidth + 'px';
+                        resultArray.push(pokemon_num.name + " Found");
+                    }
+                    else if (pokemon_num.name == 'Bulbasaur'){
+                        status.innerText = 'You caught a bulbasaur!';
+                        //history.innerText += "\nBulbasaur found" ;
+                        bci += 1;
+                        bc.innerText = bci;
+                        bwidth = 50 * bci;
+                        b_bar.style.width = bwidth + 'px';
+                        resultArray.push(pokemon_num.name + " Found");
+                    }
+                    else if (pokemon_num.name == 'Charmander'){
+                        status.innerText = 'You caught a charmander!';
+                        //history.innerText += "\nCharmander found" ;
+                        cci += 1;
+                        cc.innerText = cci;
+                        cwidth = 50 * cci;
+                        c_bar.style.width = cwidth + 'px';
+                        resultArray.push(pokemon_num.name + " Found");
+                    }
+                    else if (pokemon_num.name == 'Eevee'){
+                        status.innerText = 'You caught a eevee!';
+                        //history.innerText += "\nEevee found" ;
+                        eci += 1;
+                        ec.innerText = eci;
+                        ewidth = 50 * eci;
+                        e_bar.style.width = ewidth + 'px';
+                        resultArray.push(pokemon_num.name + " Found");
+                    }
+                    else if (pokemon_num.name == 'Squirtle'){
+                        status.innerText = 'You caught a squirtle!';
+                        //history.innerText += "\nSquirtle found" ;
+                        sci += 1;
+                        sc.innerText = sci;
+                        swidth = 50 * sci;
+                        s_bar.style.width = swidth + 'px';
+                        resultArray.push(pokemon_num.name + " Found");
+                    }
+                    caught += 1;
+                    pokemon_caught.innerText = caught;
+                }
+
+                let resultString = '';
+
+                for (let i = resultArray.length - 1; i >= 0; i--){
+                    resultString = resultString + '<br>' + `${resultArray[i]}`;
+                    console.log(history.innerText);
+                    }
+                
+                resultHistory.style.display = 'block';
+                history.innerHTML = resultString;                
+
+                if (pokeballs == 0){
+                    gameover.style.display = 'block';
+                    return;
+                }
+
+                button_playagain.style.display = 'block';
+            }
+
+        </script>
+    </body>
+</html>

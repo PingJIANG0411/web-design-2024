@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en-us">
+  <head>
+    <title>Everything is Awesome</title>
+    <meta charset="utf-8">
+    <style>
+      #container {
+       width: 800px;
+       height: 600px;
+       border: 1px solid black;
+       position: relative;
+       margin: auto;
+      }
+
+      #background{
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+      }
+      #info_box{
+        background-color: #ccc;
+        padding: 20px;
+        width: 50%;
+        border-radius: 20px;
+        margin-left: 20px;
+      }
+      #body{
+        position: absolute;
+        bottom: 0px;
+        right: 0px;
+      }
+      #head{
+        position: absolute;
+        right:75px;
+        bottom: 280px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="container">
+      <script>
+        let num = prompt("Give a number");
+        
+        while (isNaN(num) || num <= 2){
+          num = prompt("Give a number");
+        }
+
+        const words = ['Awesome', 'Fantastic', 'Fabulous', 'Superb', 'Perfect', 'Brilliant', 'Coming up Roses'];
+        const bodyNum = ['body1', 'body2', 'body3', 'body4', 'body5', 'body6'];
+        const headNum = ['head1', 'head2', 'head3', 'head4', 'head5', 'head6'];
+        const index = parseInt(Math.random() * words.length);
+        let bodyNumIndex = parseInt(Math.random() * bodyNum.length);
+        let headNumIndex = parseInt(Math.random() * headNum.length);
+        document.write(`<h1 id="heading">Everything is ${words[index]}!</h1>`)
+
+        let now = new Date();
+        let hour = now.getHours();
+        let minute = now.getMinutes();
+        let newHour;
+        let greeting;
+        let time;
+
+        if (hour > 12){
+          newHour = hour - 12
+        }
+
+        if (hour >= 0 && hour < 6){
+          greeting = 'Good Night!'
+        }
+        else if(hour >= 6 && hour < 12){
+          greeting = 'Good Morning!'
+        }
+        else if(hour >= 12 && hour < 18){
+          greeting = 'Good Afternoon!'
+        }
+        else if(hour >= 18 && hour < 24){
+          greeting = 'Good Evening!'
+        }
+
+        if (hour >= 0 && hour < 6){
+          time = 'night'
+        }
+        else if(hour >= 6 && hour < 12){
+          time = 'morning'
+        }
+        else if(hour >= 12 && hour < 18){
+          time = 'afternoon'
+        }
+        else if(hour >= 18 && hour < 24){
+          time = 'evening'
+        }
+
+
+        let userInput;
+
+
+        let min = 1;
+
+        function getRandomArbitrary(min , num) {
+          let randomNumber = parseInt(Math.random() * num  +  min);
+          console.log("Pikcing random number! ", randomNumber)
+          return parseInt(Math.random() * num  +  min);
+        } 
+
+        let num1 = getRandomArbitrary(min, num);
+        let num2 = getRandomArbitrary(min, num);
+        let num3 = getRandomArbitrary(min, num);
+        while (num1 == num2){
+          num2 = getRandomArbitrary(min , num)
+        }
+        while (num1 == num2 || num2 == num3 || num1 == num3) {
+          num3 = getRandomArbitrary(min, num)
+        }
+        
+
+        if (minute < 10) {
+          document.write(`<div id="info_box">The current time is ${newHour}:0${minute}pm - ${greeting}<br>Your three lucky numbers today are ${num1},${num2} and ${num3}</div>`)
+        }
+        else{
+          document.write(`<div id="info_box">The current time is ${newHour}:${minute}pm - ${greeting}<br>Your three lucky numbers today are ${num1},${num2} and ${num3}</div>`)
+        }
+        document.write(`<img id="background" src="assignment02_images/backgrounds/${time}.png">`)
+        document.write(`<img id="body" src="assignment02_images/bodies/${bodyNum[bodyNumIndex]}.png">`)
+        document.write(`<img id="head" src="assignment02_images/heads/${headNum[headNumIndex]}.png">`)
+
+
+      </script>
+    </div>
+
+    <script>
+
+    </script>
+  </body>
+</html>

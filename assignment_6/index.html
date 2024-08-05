@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Memory</title>
+        <style>
+            body {
+                background-color: black;
+                color: white;
+                font-family: monospace;
+            }
+            .hidden {
+                display: none;
+            }
+            #game_container {
+                width: 400px;
+                height: 300px;
+                margin: auto;
+                border: 1px solid white;
+            }
+            .easy_game_item {
+                width: 100px;
+                height: 100px;
+            }
+            .medium_game_item {
+                width: 80px;
+                height: 75px;
+            }
+            .hard_game_item {
+                width: 66px;
+                height: 60px;
+            }
+            #timer {
+                text-align: center;
+                font-size: 200%;
+            }
+        </style>
+
+    </head>
+    <body>
+        <div id="panel_start">
+            <h1>Memory Matching Madness!</h1>
+            <p>Play a fast-paced game of memory and try and beat your best time</p>
+            <select id = 'difficulty'> Difficulty
+                <option value = 'easy'>Easy</option>
+                <option value = 'medium'>Medium</option>
+                <option value = 'hard'>Hard</option>
+            </select>
+            <button id="button_start">Start!</button>
+        </div>
+        <div id="panel_game" class="hidden">
+            <h1>Ready, Set, Match!</h1>
+            <div id="timer"></div>
+            <div id="game_container">
+            </div>
+        </div>
+        <div id="panel_gameover" class="hidden">
+            <h1>Game Over!</h1>
+            <p id='user_time'>Your Time: X</p>
+            <p id='best_time'>Best Time: Y</p>
+            <button id="button_playagain">Play Again</button>
+        </div>
+
+        <audio id="wrong">
+            <source src="assignment06_images/wrong.wav" type="audio/wav">
+        </audio>
+
+        <audio id="correct">
+            <source src="assignment06_images/correct.wav" type="audio/wav">
+        </audio>
+
+
+        <script>
+            let panel_start = document.querySelector('#panel_start');
+            let button_start = document.querySelector('#button_start');
+            let panel_game = document.querySelector('#panel_game');
+            let timer = document.querySelector('#timer');
+            let game_container = document.querySelector('#game_container');
+            let panel_gameover = document.querySelector('#panel_gameover');
+            let button_playagain = document.querySelector('#button_playagain');
+            let difficulty = document.querySelector('#difficulty');
+
+            let t = 0;
+            let token1 = false;
+            let token2 = false;
+            let match = 0;
+            let intervalId = false;
+
+            let wrong = document.querySelector('#wrong');
+
+
+
+                button_start.onclick = function(event) {
+                    if (!intervalId) {
+                    
+                    panel_start.classList.add('hidden');
+                    panel_game.classList.remove('hidden');
+
+                    intervalId = setInterval( function() {
+                        t += 1;
+                        timer.innerText = 'Time elapsed: ' + t;}, 1000);
+                    
+
+                const assets = ['snorlax.png', 'electrabuzz.png', 'chansey.png', 'oddish.png',
+                            'pikachu.png', 'paras.png', 'arcanine.png', 'ponita.png',
+                            'venonat.png', 'eggsecute.png', 'machop.png', 'pidgey.png',
+                            'psyduck.png', 'tauros.png', 'vulpix.png', 'gloom.png',
+                            'krabby.png', 'butterfree.png', 'bulbasaur.png', 'clefairy.png',
+                            'koffing.png', 'goldeen.png', 'magikarp.png', 'beedrill.png',
+                            'lapras.png', 'meowth.png', 'ekans.png', 'jigglypuff.png',
+                            'horsea.png', 'polywog.png', 'sandshrew.png', 'rattata.png',
+                            'gengar.png', 'eevee.png', 'bellsprout.png', 'squirtle.png',
+                            'seel.png', 'caterpie.png'];
+
+
+                let picks = [];
+
+
+                let rows, cols;
+                if (difficulty.value == 'easy') {
+                    rows = 3;
+                    cols = 4;
+                } else if (difficulty.value == 'medium') {
+                    rows = 4;
+                    cols = 5;
+                } else if (difficulty.value == 'hard') {
+                    rows = 5;
+                    cols = 6;
+                }
+                
+                for (let i = 0; i < (rows * cols) / 2; i++) {
+                    let index = parseInt( Math.random() * assets.length );
+                    picks.push( assets[index] );
+                    picks.push( assets[index] );
+                }
+
+                function shuffleArray(array) {
+                    for (let i = array.length - 1; i > 0; i--) {
+                            const j = Math.floor(Math.random() * (i + 1));
+                            [array[i], array[j]] = [array[j], array[i]];
+                        }
+                    return array;
+                }
+
+                shuffleArray(picks);
+                console.log(picks);
+
+                for (let i = 0; i < picks.length; i++) {
+                    let img = document.createElement('img');
+                    img.src = 'assignment06_images/pokeball.png';
+                    img.dataset.secret = 'assignment06_images/' + picks[i];
+                    if (difficulty.value == 'easy') {
+                        img.classList.add('easy_game_item');
+                    } else if (difficulty.value == 'medium') {
+                        img.classList.add('medium_game_item');
+                    } else if (difficulty.value == 'hard') {
+                        img.classList.add('hard_game_item');
+                    }
+                    game_container.appendChild(img);
+                    
+
+                    img.onclick = function(e) {
+                        if (token1 == false) {
+                            token1 = e.currentTarget;
+                            e.currentTarget.src = e.currentTarget.dataset.secret;
+                        }
+
+                        else if (token2 == false && e.currentTarget !== token1) {
+                            token2 = e.currentTarget;
+                            e.currentTarget.src = e.currentTarget.dataset.secret;
+
+                            if (token1.src == token2.src) {
+                                correct.play();
+                                match += 2
+                                token1 = false;
+                                token2 = false;
+                                if (match == rows * cols){
+                                    panel_game.classList.add('hidden');
+                                    panel_gameover.classList.remove('hidden');
+                                    document.getElementById('user_time').innerText = `Your Time: ${t}`;
+                                    let name = prompt('What is your name?');
+                                    let best_time = localStorage.getItem(name);
+                                    if (!best_time || t < best_time) {    
+                                        best_time = t; localStorage.setItem(name, t);
+                                        document.getElementById('best_time').innerText = `Best Time: ${t} -  New highest score!`;
+                                    }
+                                    else{
+                                        document.getElementById('best_time').innerText = `Best Time: ${best_time}`;
+                                    }
+                                    
+                                }
+                            }
+                            else{
+                            wrong.play();
+                            setTimeout( function(){
+                                token1.src = 'assignment06_images/pokeball.png';
+                                token2.src = 'assignment06_images/pokeball.png';
+                                token1 = false;
+                                token2 = false;
+                            }, 1000)
+                        }
+                        }
+                        }
+
+                    }
+
+                    button_playagain.onclick = function(event){
+                        clearInterval(intervalId);
+                        match = 0;
+                        while (game_container.firstChild) {
+                                game_container.removeChild(game_container.firstChild);
+                        }
+                        panel_gameover.classList.add('hidden');
+                        panel_start.classList.remove('hidden');
+                        t = 0;
+                        intervalId = false;
+                    }
+                }
+            }
+
+
+        </script>
+    </body>
+</html>
